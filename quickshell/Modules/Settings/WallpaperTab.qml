@@ -1292,6 +1292,16 @@ Item {
             mainWallpaperBrowserLoader.item.open();
     }
 
+    function ensureBuiltInWallpaperEnabled() {
+        var prefs = SettingsData.screenPreferences || {};
+        var wallpaperPrefs = prefs.wallpaper;
+        if (!Array.isArray(wallpaperPrefs) || wallpaperPrefs.length > 0)
+            return;
+        var newPrefs = Object.assign({}, prefs);
+        newPrefs.wallpaper = ["all"];
+        SettingsData.set("screenPreferences", newPrefs);
+    }
+
     function openLightWallpaperBrowser() {
         lightWallpaperBrowserLoader.active = true;
         if (lightWallpaperBrowserLoader.item)
@@ -1316,6 +1326,7 @@ Item {
             showHiddenFiles: true
             fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr", "*.mp4", "*.mkv", "*.webm", "*.mov", "*.avi", "*.m4v"]
             onFileSelected: path => {
+                root.ensureBuiltInWallpaperEnabled();
                 if (SessionData.perMonitorWallpaper) {
                     SessionData.setMonitorWallpaper(selectedMonitorName, path);
                 } else {
@@ -1338,6 +1349,7 @@ Item {
             showHiddenFiles: true
             fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr", "*.mp4", "*.mkv", "*.webm", "*.mov", "*.avi", "*.m4v"]
             onFileSelected: path => {
+                root.ensureBuiltInWallpaperEnabled();
                 SessionData.wallpaperPathLight = path;
                 SessionData.syncWallpaperForCurrentMode();
                 SessionData.saveSettings();
@@ -1358,6 +1370,7 @@ Item {
             showHiddenFiles: true
             fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr", "*.mp4", "*.mkv", "*.webm", "*.mov", "*.avi", "*.m4v"]
             onFileSelected: path => {
+                root.ensureBuiltInWallpaperEnabled();
                 SessionData.wallpaperPathDark = path;
                 SessionData.syncWallpaperForCurrentMode();
                 SessionData.saveSettings();
