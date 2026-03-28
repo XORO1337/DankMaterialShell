@@ -105,6 +105,7 @@
       "image",
       "management",
       "manager",
+      "mpvpaper",
       "personal",
       "personalization",
       "picture",
@@ -113,7 +114,7 @@
       "wallpaper",
       "wallpapers"
     ],
-    "description": "Use an external wallpaper manager like swww, hyprpaper, or swaybg."
+    "description": "Use an external wallpaper manager like swww, hyprpaper, swaybg, or mpvpaper."
   },
   {
     "section": "blurredWallpaperLayer",
@@ -166,6 +167,7 @@
       "image",
       "management",
       "manager",
+      "mpvpaper",
       "personal",
       "personalization",
       "picture",
@@ -174,7 +176,7 @@
       "wallpaper"
     ],
     "icon": "wallpaper",
-    "description": "Use an external wallpaper manager like swww, hyprpaper, or swaybg."
+    "description": "Use an external wallpaper manager like swww, hyprpaper, swaybg, or mpvpaper."
   },
   {
     "section": "wallpaperCyclingInterval",

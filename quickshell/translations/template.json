@@ -15085,7 +15085,7 @@
     "comment": ""
   },
   {
-    "term": "Use an external wallpaper manager like swww, hyprpaper, or swaybg.",
+    "term": "Use an external wallpaper manager like swww, hyprpaper, swaybg, or mpvpaper.",
     "translation": "",
     "context": "wallpaper settings disable description",
     "reference": "",

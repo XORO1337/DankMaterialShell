@@ -1238,17 +1238,17 @@ Item {
 
             SettingsCard {
                 tab: "wallpaper"
-                tags: ["external", "disable", "swww", "hyprpaper", "swaybg"]
+                tags: ["external", "disable", "swww", "hyprpaper", "swaybg", "mpvpaper"]
                 title: I18n.tr("External Wallpaper Management", "wallpaper settings external management")
                 settingKey: "disableWallpaper"
                 iconName: "wallpaper"
 
                 SettingsToggleRow {
                     tab: "wallpaper"
-                    tags: ["disable", "external", "management"]
+                    tags: ["disable", "external", "management", "mpvpaper"]
                     settingKey: "disableWallpapers"
                     text: I18n.tr("Disable Built-in Wallpapers", "wallpaper settings disable toggle")
-                    description: I18n.tr("Use an external wallpaper manager like swww, hyprpaper, or swaybg.", "wallpaper settings disable description")
+                    description: I18n.tr("Use an external wallpaper manager like swww, hyprpaper, swaybg, or mpvpaper.", "wallpaper settings disable description")
                     checked: {
                         var prefs = SettingsData.screenPreferences?.wallpaper;
                         if (!prefs)
