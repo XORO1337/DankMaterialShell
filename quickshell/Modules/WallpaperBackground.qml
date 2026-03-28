@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Effects
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import qs.Common
 import qs.Widgets
@@ -47,6 +48,9 @@ Variants {
 
             property string source: SessionData.getMonitorWallpaper(modelData.name) || ""
             property bool isColorSource: source.startsWith("#")
+            property var mpvpaperProcess: null
+            property int mpvpaperGeneration: 0
+            property string mpvpaperArgs: "no-audio --loop --really-quiet"
             property string transitionType: SessionData.wallpaperTransition
             property string actualTransitionType: transitionType
             property bool isInitialized: false
@@ -232,10 +236,19 @@ Variants {
 
             onSourceChanged: {
                 if (!source || source.startsWith("#")) {
+                    stopVideoWallpaper();
                     setWallpaperImmediate("");
                     return;
                 }
 
+                const videoPath = normalizeVideoPath(source);
+                if (videoPath) {
+                    startVideoWallpaper(videoPath);
+                    setWallpaperImmediate("");
+                    return;
+                }
+
+                stopVideoWallpaper();
                 const formattedSource = source.startsWith("file://") ? source : encodeFileUrl(source);
 
                 if (!isInitialized || !currentWallpaper.source) {
@@ -251,6 +264,46 @@ Variants {
                     return;
                 }
                 changeWallpaper(formattedSource);
+            }
+
+            function normalizeVideoPath(path) {
+                if (!path || path.startsWith("#"))
+                    return "";
+                const localPath = SessionData.normalizeWallpaperPath(path);
+                const lowerPath = localPath.toLowerCase();
+                for (let i = 0; i < SessionData.videoWallpaperExtensions.length; i++) {
+                    if (lowerPath.endsWith(SessionData.videoWallpaperExtensions[i])) {
+                        return localPath;
+                    }
+                }
+                return "";
+            }
+
+            function stopVideoWallpaper() {
+                if (!mpvpaperProcess)
+                    return;
+                mpvpaperProcess.running = false;
+                mpvpaperProcess.destroy();
+                mpvpaperProcess = null;
+            }
+
+            function startVideoWallpaper(videoPath) {
+                if (!videoPath)
+                    return;
+                stopVideoWallpaper();
+                if (!modelData || !modelData.name)
+                    return;
+                // Generation guards against races where an older process exits after a new one starts.
+                mpvpaperGeneration += 1;
+                const process = mpvpaperProcessComponent.createObject(root, {
+                    "targetScreenName": modelData.name,
+                    "targetVideoPath": videoPath,
+                    "generation": mpvpaperGeneration
+                });
+                if (!process)
+                    return;
+                mpvpaperProcess = process;
+                process.running = true;
             }
 
             function setWallpaperImmediate(newSource) {
@@ -281,6 +334,37 @@ Variants {
                 interval: 16
                 repeat: false
                 onTriggered: transitionAnimation.start()
+            }
+
+            Component {
+                id: mpvpaperProcessComponent
+
+                Process {
+                    property string targetScreenName: ""
+                    property string targetVideoPath: ""
+                    property int generation: 0
+                    running: false
+                    command: ["mpvpaper", "-o", root.mpvpaperArgs, targetScreenName, targetVideoPath]
+
+                    stderr: StdioCollector {
+                        onStreamFinished: {
+                            if (text && text.trim()) {
+                                console.warn("WallpaperBackground mpvpaper:", text.trim());
+                            }
+                        }
+                    }
+
+                    onExited: exitCode => {
+                        // 143 (128 + SIGTERM) is expected when we intentionally stop mpvpaper.
+                        if (exitCode !== 0 && exitCode !== 143 && root.source && root.normalizeVideoPath(root.source)) {
+                            ToastService.showError(I18n.tr("Video wallpaper failed to start"), I18n.tr("Install and configure mpvpaper to use video wallpapers."));
+                        }
+                        if (generation === root.mpvpaperGeneration) {
+                            root.mpvpaperProcess = null;
+                        }
+                        destroy();
+                    }
+                }
             }
 
             function changeWallpaper(newPath, force) {
@@ -652,6 +736,10 @@ Variants {
                     blurMax: 75
                     autoPaddingEnabled: false
                 }
+            }
+
+            Component.onDestruction: {
+                stopVideoWallpaper();
             }
         }
     }

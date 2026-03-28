@@ -69,6 +69,7 @@ Singleton {
     property string wallpaperCyclingMode: "interval"
     property int wallpaperCyclingInterval: 300
     property string wallpaperCyclingTime: "06:00"
+    property var videoWallpaperExtensions: [".mp4", ".mkv", ".webm", ".mov", ".avi", ".m4v"]
     property var monitorCyclingSettings: ({})
 
     property bool nightModeEnabled: false
@@ -363,6 +364,29 @@ Singleton {
         saveSettings();
     }
 
+    function normalizeWallpaperPath(path) {
+        if (!path)
+            return "";
+        let normalized = path;
+        if (normalized.startsWith("file://")) {
+            normalized = normalized.substring(7);
+            normalized = normalized.split('/').map(s => decodeURIComponent(s)).join('/');
+        }
+        return normalized;
+    }
+
+    function isVideoWallpaperPath(path) {
+        if (!path || path.startsWith("#"))
+            return false;
+        const normalized = normalizeWallpaperPath(path).toLowerCase();
+        for (let i = 0; i < videoWallpaperExtensions.length; i++) {
+            if (normalized.endsWith(videoWallpaperExtensions[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function setWallpaper(imagePath) {
         wallpaperPath = imagePath;
         if (perModeWallpaper) {
@@ -374,7 +398,7 @@ Singleton {
         }
         saveSettings();
 
-        if (typeof Theme !== "undefined") {
+        if (typeof Theme !== "undefined" && !isVideoWallpaperPath(imagePath)) {
             Theme.generateSystemThemesFromCurrentTheme();
         }
     }
@@ -521,7 +545,7 @@ Singleton {
 
         saveSettings();
 
-        if (typeof Theme !== "undefined" && typeof Quickshell !== "undefined" && typeof SettingsData !== "undefined") {
+        if (typeof Theme !== "undefined" && typeof Quickshell !== "undefined" && typeof SettingsData !== "undefined" && !isVideoWallpaperPath(path)) {
             var screens = Quickshell.screens;
             if (screens.length > 0) {
                 var targetMonitor = (SettingsData.matugenTargetMonitor && SettingsData.matugenTargetMonitor !== "") ? SettingsData.matugenTargetMonitor : screens[0].name;
