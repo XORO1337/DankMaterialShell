@@ -1238,17 +1238,17 @@ Item {
 
             SettingsCard {
                 tab: "wallpaper"
-                tags: ["external", "disable", "swww", "hyprpaper", "swaybg"]
+                tags: ["external", "disable", "swww", "hyprpaper", "swaybg", "mpvpaper"]
                 title: I18n.tr("External Wallpaper Management", "wallpaper settings external management")
                 settingKey: "disableWallpaper"
                 iconName: "wallpaper"
 
                 SettingsToggleRow {
                     tab: "wallpaper"
-                    tags: ["disable", "external", "management"]
+                    tags: ["disable", "external", "management", "mpvpaper"]
                     settingKey: "disableWallpapers"
                     text: I18n.tr("Disable Built-in Wallpapers", "wallpaper settings disable toggle")
-                    description: I18n.tr("Use an external wallpaper manager like swww, hyprpaper, or swaybg.", "wallpaper settings disable description")
+                    description: I18n.tr("Use an external wallpaper manager like swww, hyprpaper, swaybg, or mpvpaper.", "wallpaper settings disable description")
                     checked: {
                         var prefs = SettingsData.screenPreferences?.wallpaper;
                         if (!prefs)
@@ -1292,6 +1292,16 @@ Item {
             mainWallpaperBrowserLoader.item.open();
     }
 
+    function ensureBuiltInWallpaperEnabled() {
+        var prefs = SettingsData.screenPreferences || {};
+        var wallpaperPrefs = prefs.wallpaper;
+        if (!Array.isArray(wallpaperPrefs) || wallpaperPrefs.length > 0)
+            return;
+        var newPrefs = Object.assign({}, prefs);
+        newPrefs.wallpaper = ["all"];
+        SettingsData.set("screenPreferences", newPrefs);
+    }
+
     function openLightWallpaperBrowser() {
         lightWallpaperBrowserLoader.active = true;
         if (lightWallpaperBrowserLoader.item)
@@ -1314,8 +1324,9 @@ Item {
             browserIcon: "wallpaper"
             browserType: "wallpaper"
             showHiddenFiles: true
-            fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr"]
+            fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr", "*.mp4", "*.mkv", "*.webm", "*.mov", "*.avi", "*.m4v"]
             onFileSelected: path => {
+                root.ensureBuiltInWallpaperEnabled();
                 if (SessionData.perMonitorWallpaper) {
                     SessionData.setMonitorWallpaper(selectedMonitorName, path);
                 } else {
@@ -1336,8 +1347,9 @@ Item {
             browserIcon: "light_mode"
             browserType: "wallpaper"
             showHiddenFiles: true
-            fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr"]
+            fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr", "*.mp4", "*.mkv", "*.webm", "*.mov", "*.avi", "*.m4v"]
             onFileSelected: path => {
+                root.ensureBuiltInWallpaperEnabled();
                 SessionData.wallpaperPathLight = path;
                 SessionData.syncWallpaperForCurrentMode();
                 SessionData.saveSettings();
@@ -1356,8 +1368,9 @@ Item {
             browserIcon: "dark_mode"
             browserType: "wallpaper"
             showHiddenFiles: true
-            fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr"]
+            fileExtensions: ["*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif", "*.webp", "*.jxl", "*.avif", "*.heif", "*.exr", "*.mp4", "*.mkv", "*.webm", "*.mov", "*.avi", "*.m4v"]
             onFileSelected: path => {
+                root.ensureBuiltInWallpaperEnabled();
                 SessionData.wallpaperPathDark = path;
                 SessionData.syncWallpaperForCurrentMode();
                 SessionData.saveSettings();

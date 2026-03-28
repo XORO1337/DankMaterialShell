@@ -12930,7 +12930,7 @@
     "comment": ""
   },
   {
-    "term": "Use an external wallpaper manager like swww, hyprpaper, or swaybg.",
+    "term": "Use an external wallpaper manager like swww, hyprpaper, swaybg, or mpvpaper.",
     "context": "wallpaper settings disable description",
     "reference": "Modules/Settings/WallpaperTab.qml:1251",
     "comment": ""
